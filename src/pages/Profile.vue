@@ -3,7 +3,7 @@
     <div>
     <div v-if="profile.id">
       <div class="q-title">{{ profile.first_name + ' ' +  profile.last_name }}</div>
-      <p><img :src="profile.picture" alt="" ></p>
+      <p><img :src="profile.picture" ></p>
     </div>
   </div>
   </q-page>
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: 'Perfil',
+  name: 'Profile',
   data () {
     return {
       profile: {}
@@ -22,6 +22,9 @@ export default {
   },
   methods: {
     getProfile (network) {
+      if (this.$hello.getAuthResponse(network) == null) {
+        return
+      }
       this.$hello(network).api('me')
         .then((res) => {
           console.log(res)

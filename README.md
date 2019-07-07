@@ -99,7 +99,7 @@ import hello from 'hellojs'
 
 export default ({ Vue }) => {
   hello.init({
-    facebook: 'your-facebook-client-id-here'
+    facebook: 'your-facebook-app-id-here'
   })
   Vue.prototype.$hello = hello
 }
@@ -148,6 +148,7 @@ Create a file named `LoginLayout.vue` in the into the path `src/layouts` with th
   border: solid 1px black
 }
 </style>
+
 ```
 
 The CSS backgroun image can be downloaded from the following link. Rename it to `background-img.jpg` and place it into the `statics/` folder.
@@ -169,7 +170,7 @@ Now create the page file `Login.vue` into the path `src/pages` with the followin
             <q-btn
               color="primary" glossy push class="full-width"
               icon="fab fa-facebook-f" label="Login with Facebook"
-              size="md" @click="auth('facebook')" >
+              size="md" >
             </q-btn>
           </div>
        </div>
@@ -178,15 +179,7 @@ Now create the page file `Login.vue` into the path `src/pages` with the followin
 
 <script>
 export default {
-  name: 'Login',
-  methods: {
-    auth (network) {
-      this.$hello(network).login({ scope: 'friends' })
-        .then(() => {
-          this.$router.push('profile')
-        })
-    }
-  }
+  name: 'Login'
 }
 </script>
 
@@ -195,6 +188,7 @@ export default {
   background: #1817309a;
 }
 </style>
+
 ```
 
 To be able to access the new page its route has to be created.
@@ -233,3 +227,209 @@ export default routes
 Access the URL [http://localhost:8080/#/login](http://localhost:8080/#/login) to confirm if it works as expected:
 
 ![](docs/login.png)
+
+Note that the URL has the hashtag symbol `#`. To change that, edit the file `quasar.conf.js` and uncomment the following line (removing its slashes):
+
+```js
+ vueRouterMode: 'history',
+```
+
+Now you can access it using [http://localhost:8080/login](http://localhost:8080/login).
+
+## Creating an app on Facebook for Developers
+
+Before proceeding you will have to create an app on [Facebook for Developers](https://developers.facebook.com/):
+
+* [Login into Facebook for Developers](https://www.facebook.com/login/?next=https%3A%2F%2Fdevelopers.facebook.com%2F)
+* On the top-right menu click on **My Apps** then on **Create App**
+* Type in the **Display Name** and your **Contact Email**
+* Click on the **Create App ID** button
+* After the security validation the page will be redirected
+* On the left-menu click on **Products +**
+* Then click on the **Facebook Login** Set Up button
+* On the left-menu, open the **Settings** option then click on **Basic**
+* In the **Privacy Policy URL** you can use the following link [https://developers.facebook.com/policy/](https://developers.facebook.com/policy/). Just make sure to read it.
+* You can setup and icon and also update the other fields if you wish although they are not required for the tutorial
+* Save your changes.
+* Copy the **APP ID** displayed on the top-left of the Facebook for developers page. It is going to be used in the next section.
+
+## Implementing the authentication method
+
+Edit the file `src/boot/hello.js` and replace the value `your-facebook-app-id-here` of the parameter `facebook` with the **APP ID** copied from Facebook for developers in the previous section.
+
+```js
+import hello from 'hellojs'
+
+export default ({ Vue }) => {
+  hello.init({
+    facebook: 'your-APP-ID-here'
+  })
+  Vue.prototype.$hello = hello
+}
+```
+
+Edit the file `src/pages/Login.vue` and replace its content with the following:
+
+```html
+<template>
+    <q-page  class="docs-input row justify-center">
+        <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-pa-xl dark">
+          <div class="text-center" style="color:white">
+            <img src="assets/quasar-logo-full.svg" width="130em" />
+            <p class="q-display-1 text-weight-bolder q-pt-lg">Quasar + Hello.js</p>
+            <p class="q-title text-weight-bold q-ma-none">Social Login</p>
+          </div>
+          <div class="q-mt-xl">
+            <q-btn
+              color="primary" glossy push class="full-width"
+              icon="fab fa-facebook-f" label="Login with Facebook"
+              size="md" @click="auth('facebook')" >
+            </q-btn>
+          </div>
+       </div>
+    </q-page>
+</template>
+
+<script>
+export default {
+  name: 'Login',
+  methods: {
+    auth (network) {
+      this.$hello(network).login({ scope: 'friends' })
+        .then((res) => {
+          console.log(res)
+        })
+    }
+  }
+}
+</script>
+
+<style scoped>
+.dark{
+  background: #1817309a;
+}
+</style>
+
+```
+
+We've added the `@click="auth('facebook')` to the `<q-btn>` and also added the method `auth` in the `<script>` block.
+
+Now open the login page [http://localhost:8080/login](http://localhost:8080/login) and click on the **LOGIN WITH FACEBOOK**. Once you approve it you can check the response in your browser's console.
+
+## Retrieving Facebook's profile
+
+Once the user is authenticated we want to display its Profile page.
+
+Edit the file `src/pages/Login.vue` and replace the following lines:
+
+```js
+.then((res) => {
+  console.log(res)
+})
+```
+
+with:
+
+```js
+.then(() => {
+  this.$router.push('profile')
+})
+```
+
+Now create the file `src/pages/Profile.vue` with the following content:
+
+```js
+<template>
+  <q-page class="flex flex-center">
+    <div>
+    <div v-if="profile.id">
+      <div class="q-title">{{ profile.first_name + ' ' +  profile.last_name }}</div>
+      <p><img :src="profile.picture" ></p>
+    </div>
+  </div>
+  </q-page>
+</template>
+
+<script>
+export default {
+  name: 'Profile',
+  data () {
+    return {
+      profile: {}
+    }
+  },
+  mounted () {
+    this.getProfile('facebook')
+  },
+  methods: {
+    getProfile (network) {
+      if (this.$hello.getAuthResponse(network) == null) {
+        return
+      }
+      this.$hello(network).api('me')
+        .then((res) => {
+          console.log(res)
+          this.profile = res
+        })
+    }
+  }
+}
+</script>
+
+```
+
+Note that the method `hello.api(me)` was used. It returns the profile data for the social network used during the authentication - in this case Facebook.
+
+And as last step create the route for the new page. Edit the file `src/router/routes.js` and add the following code inside the `children` list of the `path: '/'`:
+
+```js
+{ path: '/profile', component: () => import('pages/Profile.vue') }
+```
+
+Don't forget the comma in the line before of the above.
+
+This is how the final version of the `routes.js` should look like:
+
+```js
+
+const routes = [
+  {
+    path: '/',
+    component: () => import('layouts/MyLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/Index.vue') },
+      { path: '/profile', component: () => import('pages/Profile.vue') }
+    ]
+  },
+  {
+    path: '/login',
+    component: () => import('layouts/LoginLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/Login.vue') }
+    ]
+  }
+]
+
+// Always leave this as last one
+if (process.env.MODE !== 'ssr') {
+  routes.push({
+    path: '*',
+    component: () => import('pages/Error404.vue')
+  })
+}
+
+export default routes
+```
+
+Now open the [http://localhost:8080/login](http://localhost:8080/login) and proceed with the Facebook login. After confirming the authentication you may be redirected to the profile page that will display the full name and profile photo from the Facebook account.
+
+## Final considerations
+
+The version 2 of Hello.js it's being developer and you can check it [here](https://github.com/MrSwitch/hello.js#try-out-the-next-version).
+
+The source code of this tutorial can be found at [https://github.com/wcomnisky/quasar-hello-auth](https://github.com/wcomnisky/quasar-hello-auth).
+
+## Thanks to
+
+* **[Patrick Monteiro](https://github.com/patrickmonteiro)** for creating and sharing the original tutorial. 
+* **[Aline Morisson](https://www.instagram.com/alinemorisson/)** has created the tutorial cover art for Patrick's original tutorial version. She works as graphic design freelancer and can be contacted via email alinemorisson0@gmail.com

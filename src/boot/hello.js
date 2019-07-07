@@ -2,7 +2,7 @@ import hello from 'hellojs'
 
 export default ({ Vue }) => {
   hello.init({
-    facebook: '813095469028245'
+    facebook: 'your-facebook-app-id-here'
   })
   Vue.prototype.$hello = hello
 }
