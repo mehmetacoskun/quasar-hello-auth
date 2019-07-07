@@ -1,8 +1,8 @@
 # Quasar + Hello.js
 
-> This is the English loose translation of [its Portuguese version](https://github.com/patrickmonteiro/quasar-hello-auth/blob/0ca0e4f3a766d1d519ac9989d5127c2316feca6a/README.md) (pt-br 🇧🇷) authored by [Patrick Monteiro](https://github.com/patrickmonteiro) but using Quasar Framework **v1.0.3**.
+> This is the English loose translation of [Patrick Monteiro](https://github.com/patrickmonteiro)'s [Brazilian Portuguese tutorial](https://github.com/patrickmonteiro/quasar-hello-auth/blob/0ca0e4f3a766d1d519ac9989d5127c2316feca6a/README.md) but using Quasar Framework **v1.0.3**.
 
-This tutorial explains how to create an application using [Quasar Framework](https://quasar.dev) and [Hello.js](https://adodson.com/hello.js/) (for the social login).
+This tutorial explains how to integrate Social Login using [Hello.js](https://adodson.com/hello.js/) into a [Quasar Framework](https://quasar.dev) application.
 
 Quasar has recently reached its stable version (`v1`). That's the version going to be used in this tutorial.
 
@@ -431,5 +431,5 @@ The source code of this tutorial can be found at [https://github.com/wcomnisky/q
 
 ## Thanks to
 
-* **[Patrick Monteiro](https://github.com/patrickmonteiro)** for creating and sharing the original tutorial. 
+* **[Patrick Monteiro](https://github.com/patrickmonteiro)** for creating and sharing the original tutorial (pt-br). 
 * **[Aline Morisson](https://www.instagram.com/alinemorisson/)** has created the tutorial cover art for Patrick's original tutorial version. She works as graphic design freelancer and can be contacted via email alinemorisson0@gmail.com
